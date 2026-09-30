@@ -22,27 +22,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Configuration
 public class ProjectConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
-        registry.addViewController("/ejemplo2").setViewName("ejemplo2");
-        registry.addViewController("/multimedia").setViewName("multimedia");
-        registry.addViewController("/iframes").setViewName("iframes");
-        registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/registro/nuevo").setViewName("/registro/nuevo");
-    }
-
-    @Bean
-    public SpringResourceTemplateResolver templateResolver_0() {
-        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("classpath:/templates");
-        resolver.setSuffix(".html");
-        resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setOrder(0);
-        resolver.setCheckExistence(true);
-        return resolver;
-    }
-
     @Bean
     public LocaleResolver localeResolver() {
         var slr = new SessionLocaleResolver();
@@ -64,10 +43,11 @@ public class ProjectConfig implements WebMvcConfigurer {
         registro.addInterceptor(localeChangeInterceptor());
     }
 
+    //Bean para poder acceder a los messages.properties en código...
     @Bean("messageSource")
     public MessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("messages");
+        messageSource.setBasenames("messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }
