@@ -10,16 +10,20 @@ import Portafolio_MariaFernanda.Portafolio.repository.CategoriaRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.io.IOException;
+import java.util.Optional;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class CategoriaService {
 
-    // El repositorio es final para asegurar la inmutabilidad
     private final CategoriaRepository categoriaRepository;
+    private final FirebaseStorageService firebaseStorageService;
 
-    // Inyección por constructor (No requiere @Autowired en Spring moderno)
-    public CategoriaService(CategoriaRepository categoriaRepository) {
+    public CategoriaService(CategoriaRepository categoriaRepository, FirebaseStorageService firebaseStorageService) {
         this.categoriaRepository = categoriaRepository;
+        this.firebaseStorageService = firebaseStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -28,5 +32,41 @@ public class CategoriaService {
             return categoriaRepository.findByActivoTrue();
         }
         return categoriaRepository.findAll();
+    }
+    
+        @Transactional(readOnly = true)
+    public Optional<Categoria> getCategoria(Integer idCategoria) {
+        return categoriaRepository.findById(idCategoria);
+    }
+
+    @Transactional
+    public void save(Categoria categoria, MultipartFile imagenFile) {
+        categoria = categoriaRepository.save(categoria);
+        if (!imagenFile.isEmpty()) { //Si no está vacio... pasaron una imagen...
+            try {
+                String rutaImagen = firebaseStorageService.uploadImage(
+                        imagenFile, "categoria",
+                        categoria.getIdCategoria());
+                categoria.setRutaImagen(rutaImagen);
+                categoriaRepository.save(categoria);
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
+    @Transactional
+    public void delete(Integer idCategoria) {
+        // Verifica si la categoria existe antes de intentar eliminarlo
+        if (!categoriaRepository.existsById(idCategoria)) {
+            // Lanza una excepción para indicar que el usuario no fue encontrado
+            throw new IllegalArgumentException("La categoría con ID " + idCategoria + " no existe.");
+        }
+        try {
+            categoriaRepository.deleteById(idCategoria);
+        } catch (DataIntegrityViolationException e) {
+            // Lanza una nueva excepción para encapsular el problema de integridad de datos
+            throw new IllegalStateException("No se puede eliminar la categoría. Tiene datos asociados.", e);
+        }
     }
 }
