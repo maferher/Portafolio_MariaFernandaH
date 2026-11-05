@@ -63,5 +63,49 @@
                 </div>
             </div>
         </section>
+        <section th:fragment="consultas" class="container py-4">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+                <div th:replace="~{consultas/fragmentos :: formConsulta(
+                 'primary', #{consultas.derivadas}, '/consultas/consultaDerivada')}"/>
+                <div th:replace="~{consultas/fragmentos :: formConsulta(
+                 'success', #{consultas.jpql}, '/consultas/consultaJPQL')}"/>
+                <div th:replace="~{consultas/fragmentos :: formConsulta(
+                 'warning', #{consultas.sql}, '/consultas/consultaSQL')}"/>
+
+                <!-- Cuarta tarjeta: reservada para la Práctica #2 -->
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header text-bg-danger">Práctica #2</div>
+                        <div class="card-body">
+                            <form method="post" th:action="@{/consultas/consultaPractica2}">
+                                <label class="form-label">Palabra en la descripción</label>
+                                <input type="text" name="palabra" required class="form-control mb-2" th:value="${palabra}"/>
+
+                                <label class="form-label">Existencias mínimas</label>
+                                <input type="number" name="existenciasMin" min="0" required class="form-control mb-3" th:value="${existenciasMin}"/>
+
+                                <button type="submit" class="btn btn-primary">Buscar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div th:fragment="formConsulta(colorForm, textoForm, urlForm)" class="col">
+        <div class="card h-100">
+            <div th:class="'card-header text-bg-' + ${colorForm}">[[${textoForm}]]</div>
+            <div class="card-body">
+                <form method="post" th:action="@{${urlForm}}">
+                    <label class="form-label">[[#{consultas.precio.inferior}]]</label>
+                    <input type="number" name="precioInf" min="0" step="0.01" required
+                           class="form-control mb-2" th:value="${precioInf}"/>
+                    <label class="form-label">[[#{consultas.precio.superior}]]</label>
+                    <input type="number" name="precioSup" min="0" step="0.01" required
+                           class="form-control mb-3" th:value="${precioSup}"/>
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </form>
+            </div>
+        </div>
+    </div>
     </body>
 </html>
