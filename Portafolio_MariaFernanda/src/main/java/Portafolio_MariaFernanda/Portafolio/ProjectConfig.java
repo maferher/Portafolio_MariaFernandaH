@@ -51,5 +51,10 @@ public class ProjectConfig implements WebMvcConfigurer {
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }
+    
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+    registry.addViewController("/login").setViewName("login");
+    registry.addViewController("/acceso_denegado").setViewName("acceso_denegado");
+    }
 }
-
